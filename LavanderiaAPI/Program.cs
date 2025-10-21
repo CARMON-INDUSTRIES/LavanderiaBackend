@@ -51,7 +51,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:9000", "http://localhost:9001")
+                          policy.WithOrigins("http://localhost:9000", "http://localhost:9001",
+                              "https://lavanderia-frontend.vercel.app")
                                 .AllowAnyMethod()
                                 .AllowAnyHeader()
                                 .AllowCredentials();
