@@ -88,5 +88,50 @@ namespace LavanderiaAPI.Controllers
 
             return Ok("Usuario registrado correctamente con rol Admin.");
         }
+
+        [HttpPost("crear-rol")]
+        public async Task<IActionResult> CrearRol([FromBody] string nombreRol)
+        {
+            if (string.IsNullOrWhiteSpace(nombreRol))
+                return BadRequest("El nombre del rol es obligatorio.");
+
+            // Verificar si ya existe
+            var existe = await _roleManager.RoleExistsAsync(nombreRol);
+            if (existe)
+                return BadRequest($"El rol '{nombreRol}' ya existe.");
+
+            var resultado = await _roleManager.CreateAsync(new IdentityRole(nombreRol));
+
+            if (resultado.Succeeded)
+                return Ok($"Rol '{nombreRol}' creado correctamente.");
+            else
+                return BadRequest(resultado.Errors);
+        }
+
+        [HttpPost("asignar-rol")]
+        public async Task<IActionResult> AsignarRol([FromBody] AsignarRolDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Usuario);
+            if (user == null)
+                return NotFound("Usuario no encontrado.");
+
+            if (!await _roleManager.RoleExistsAsync(dto.Rol))
+                return BadRequest("El rol no existe.");
+
+            var resultado = await _userManager.AddToRoleAsync(user, dto.Rol);
+
+            if (resultado.Succeeded)
+                return Ok($"Rol '{dto.Rol}' asignado correctamente al usuario '{dto.Usuario}'.");
+            else
+                return BadRequest(resultado.Errors);
+        }
+
+        public class AsignarRolDto
+        {
+            public string Usuario { get; set; } = string.Empty;
+            public string Rol { get; set; } = string.Empty;
+        }
+
+
     }
 }

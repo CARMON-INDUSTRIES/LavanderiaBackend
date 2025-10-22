@@ -13,11 +13,12 @@ namespace LavanderiaAPI.Models
         public DateTime FechaEntrega { get; set; }
 
         public string Estado { get; set; } = "Pendiente";
+        public DateTime? FechaCambioEstado { get; set; }
 
-        // Campos nuevos:
-        public decimal Kilos { get; set; } // Kilos de ropa
-        public decimal ACuenta { get; set; } // Pago a cuenta
-        public string MetodoPago { get; set; } = "Efectivo"; // Efectivo o Transferencia
+
+        public decimal Kilos { get; set; } 
+        public decimal ACuenta { get; set; } 
+        public string MetodoPago { get; set; } = "Efectivo"; 
 
         public decimal Total { get; set; }
 

@@ -11,6 +11,7 @@ namespace LavanderiaAPI.Dto
         public DateTime FechaIngreso { get; set; }
         public DateTime FechaEntrega { get; set; }
         public string Estado { get; set; } = "Pendiente";
+        public DateTime? FechaCambioEstado { get; set; }
         public decimal Kilos { get; set; }
         public decimal ACuenta { get; set; }
         public string MetodoPago { get; set; } = "Efectivo";

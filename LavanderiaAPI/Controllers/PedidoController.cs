@@ -33,6 +33,7 @@ namespace LavanderiaAPI.Controllers
                 FechaIngreso = p.FechaIngreso,
                 FechaEntrega = p.FechaEntrega,
                 Estado = p.Estado,
+                FechaCambioEstado = p.FechaCambioEstado,
                 Kilos = p.Kilos,
                 ACuenta = p.ACuenta,
                 MetodoPago = p.MetodoPago,
@@ -74,17 +75,26 @@ namespace LavanderiaAPI.Controllers
             return CreatedAtAction(nameof(GetPedidos), new { id = pedido.Id }, pedido);
         }
 
-        // PUT: api/pedido/{id}/estado
         [HttpPut("{id}/estado")]
         public async Task<IActionResult> CambiarEstado(int id, [FromBody] EstadoDto dto)
         {
             var pedido = await _context.Pedidos.FindAsync(id);
-            if (pedido == null) return NotFound();
+            if (pedido == null)
+                return NotFound();
 
             pedido.Estado = dto.NuevoEstado;
+            pedido.FechaCambioEstado = DateTime.Now; 
+
             await _context.SaveChangesAsync();
-            return NoContent();
+
+            return Ok(new
+            {
+                pedido.Id,
+                pedido.Estado,
+                pedido.FechaCambioEstado
+            });
         }
+
 
         public class EstadoDto
         {
