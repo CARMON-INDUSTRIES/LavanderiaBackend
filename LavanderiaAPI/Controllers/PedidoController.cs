@@ -47,6 +47,49 @@ namespace LavanderiaAPI.Controllers
             }).ToList();
         }
 
+        // GET: api/pedido/ultimo
+        [HttpGet("ultimo")]
+        public async Task<ActionResult<PedidoDto>> GetUltimoPedido()
+        {
+            var pedido = await _context.Pedidos
+                .Include(p => p.Cliente)
+                .Include(p => p.Detalles)
+                .OrderByDescending(p => p.Id)
+                .FirstOrDefaultAsync();
+
+            if (pedido == null)
+                return NotFound();
+
+            var dto = new PedidoDto
+            {
+                Id = pedido.Id,
+                ClienteId = pedido.ClienteId,
+                FechaIngreso = pedido.FechaIngreso,
+                FechaEntrega = pedido.FechaEntrega,
+                Estado = pedido.Estado,
+                FechaCambioEstado = pedido.FechaCambioEstado,
+                Kilos = pedido.Kilos,
+                ACuenta = pedido.ACuenta,
+                MetodoPago = pedido.MetodoPago,
+                Total = pedido.Total,
+                Cliente = pedido.Cliente != null ? new ClienteDto
+                {
+                    Id = pedido.Cliente.Id,
+                    Nombre = pedido.Cliente.Nombre,
+                    Telefono = pedido.Cliente.Telefono,
+                    Direccion = pedido.Cliente.Direccion
+                } : null,
+                Detalles = pedido.Detalles?.Select(d => new DetallePedidoDto
+                {
+                    TipoPrenda = d.TipoPrenda,
+                    Servicio = d.Servicio,
+                    Precio = d.Precio
+                }).ToList()
+            };
+
+            return Ok(dto);
+        }
+
         // POST: api/pedido
         [HttpPost]
         public async Task<ActionResult<Pedido>> CreatePedido(PedidoDto pedidoDto)
@@ -75,6 +118,7 @@ namespace LavanderiaAPI.Controllers
             return CreatedAtAction(nameof(GetPedidos), new { id = pedido.Id }, pedido);
         }
 
+        // PUT: api/pedido/{id}/estado
         [HttpPut("{id}/estado")]
         public async Task<IActionResult> CambiarEstado(int id, [FromBody] EstadoDto dto)
         {
@@ -83,7 +127,7 @@ namespace LavanderiaAPI.Controllers
                 return NotFound();
 
             pedido.Estado = dto.NuevoEstado;
-            pedido.FechaCambioEstado = DateTime.Now; 
+            pedido.FechaCambioEstado = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
@@ -95,11 +139,9 @@ namespace LavanderiaAPI.Controllers
             });
         }
 
-
         public class EstadoDto
         {
             public string NuevoEstado { get; set; }
         }
-
     }
 }
